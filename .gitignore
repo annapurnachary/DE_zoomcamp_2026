@@ -214,3 +214,6 @@ __marimo__/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+*terraform*
+*parquet*
+*csv*
