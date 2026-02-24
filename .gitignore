@@ -217,3 +217,14 @@ __marimo__/
 *terraform*
 *parquet*
 *csv*
+
+.bruin.yml
+logs/runs
+logs/*.log
+*.py[cod]
+logs/queries
+logs/exports
+*.log*
+tmp*
+*duckdb*
+*duck_db*
