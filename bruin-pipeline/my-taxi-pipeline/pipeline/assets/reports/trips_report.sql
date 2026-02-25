@@ -1,7 +1,8 @@
 /* @bruin
 
 name: reports.trips_report
-type: duckdb.sql
+#type: duckdb.sql
+type: bq.sql
 
 materialization:
   type: table

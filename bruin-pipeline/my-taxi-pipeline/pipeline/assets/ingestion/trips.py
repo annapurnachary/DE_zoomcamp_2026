@@ -1,7 +1,8 @@
 """@bruin
 
 name: ingestion.trips
-connection: duckdb-default
+#connection: duckdb-default
+connection: bigquery-default
 
 materialization:
   type: table
