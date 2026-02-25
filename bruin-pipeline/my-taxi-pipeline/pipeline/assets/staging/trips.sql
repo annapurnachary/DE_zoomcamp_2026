@@ -1,7 +1,8 @@
 /* @bruin
 
 name: staging.trips
-type: duckdb.sql
+#type: duckdb.sql
+type: bq.sql
 
 materialization:
   type: table
