@@ -209,3 +209,22 @@ __marimo__/
 # data files like csv, json, xml, parquest etc.
 *.parquet
 *.json
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*terraform*
+*parquet*
+*csv*
+
+.bruin.yml
+logs/runs
+logs/*.log
+*.py[cod]
+logs/queries
+logs/exports
+*.log*
+tmp*
+*duckdb*
+*duck_db*

@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: rawdata
+    database: dbt-module-4 # Or name of your GCP project
+    schema: ny_taxi # Or name of your BigQuery dataset
+    
+    tables:
+      - name: green_trip_data_external
+      - name: yellow_trip_data_external_20260213
+      - name: fhv_data_external

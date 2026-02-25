@@ -35,3 +35,11 @@ resource "google_storage_bucket" "auto-expire" {
     }
   }
 }
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "anu_de_dataset"
+  project    = "dtc-de-course-485402"
+  location   = "US"
+
+  }
+
+ 
