@@ -2,7 +2,7 @@
 
 name: ingestion.trips
 #connection: duckdb-default
-connection: bigquery-default
+connection: gcp-default
 
 materialization:
   type: table
