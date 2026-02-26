@@ -1,3 +1,3 @@
-# DE_zoomcamp_2026_Docker
+# DE_zoomcamp_2026
 Codespace_workshop
 
