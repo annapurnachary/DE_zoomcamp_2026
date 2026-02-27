@@ -16,8 +16,8 @@ type: bq.seed
 # Path to the CSV file (relative to this .asset.yml file).
 # Can also be a URL: https://example.com/data.csv
 parameters:
-  #path: payment_lookup.csv
-  path: https://raw.githubusercontent.com/getbruin/best-practices/main/data/payment_lookup.csv
+  path: payment_lookup.csv
+  #path: https://raw.githubusercontent.com/getbruin/best-practices/main/data/payment_lookup.csv
 
 # TODO: Define columns and add quality checks.
 # - Lookups should have a stable primary key.
