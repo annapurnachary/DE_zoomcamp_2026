@@ -216,6 +216,7 @@ __marimo__/
 .terraform.lock.hcl
 *terraform*
 *parquet*
+
 *csv*
 
 .bruin.yml
