@@ -46,7 +46,8 @@ with open(yaml_file_path, 'r') as f:
 # This is an example, you need to match the exact keys used in your bruin.yml
 #gcp_credentials_file = config.get('connections', {}).get('google_cloud_platform', {}).get('service_account_file', {})
 #gcp_credentials_file = config.get('connections', {}).get('google_cloud_platform', {}).get('service_account_file')
-gcp_credentials_file = config.get('connections').get('google_cloud_platform').get('service_account_file')
+#gcp_credentials_file = config.get('connections').get('google_cloud_platform').get('service_account_file')
+gcp_credentials_file = config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {}).get('service_account_file')
 
 # Create credentials object (assuming the credentials are in a service account JSON format)
 # You might need to convert the dictionary to a proper credentials object
