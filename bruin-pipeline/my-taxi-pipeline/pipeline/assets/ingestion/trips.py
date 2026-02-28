@@ -13,10 +13,10 @@ import subprocess
 import sys
 
 # Install required package
-subprocess.run(
-    [sys.executable, "-m", "pip", "install", "google-cloud-bigquery"],
-    check=True
-)
+#subprocess.run(
+#    [sys.executable, "-m", "pip", "install", "google-cloud-bigquery"],
+#    check=True
+#)
 
 from google.cloud import bigquery
 import os
