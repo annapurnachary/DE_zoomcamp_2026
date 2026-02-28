@@ -1,5 +1,7 @@
 """@bruin
 
+"""@bruin
+
 name: ingestion.trips
 connection: gcp-default
 materialization:
@@ -7,30 +9,24 @@ materialization:
   strategy: append
 image: python:3.11
 
-columns:
-  - name: tpep_pickup_datetime
-    type: timestamp
-  - name: tpep_dropoff_datetime
-    type: timestamp
-  - name: PULocationID
-    type: bigint
-  - name: DOLocationID
-    type: bigint
-  - name: fare_amount
-    type: float
-  - name: taxi_type
-    type: string
-  - name: payment_type
-    type: bigint
-
 @bruin"""
 
-import os
-import json
-from datetime import datetime
-from google.cloud import bigquery
+import subprocess
+import sys
 
-# 🔹 CHANGE THESE
+# Install required package
+subprocess.run(
+    [sys.executable, "-m", "pip", "install", "google-cloud-bigquery"],
+    check=True
+)
+
+from google.cloud import bigquery
+import os
+from datetime import datetime
+import pandas as pd
+
+
+# 🔹 UPDATE THESE
 PROJECT_ID = "module-5-bruin"
 DATASET = "ingestion"
 TABLE = "trips"
@@ -64,7 +60,6 @@ def materialize():
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.PARQUET,
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
-            autodetect=True,
         )
 
         load_job = client.load_table_from_uri(
@@ -73,16 +68,14 @@ def materialize():
             job_config=job_config,
         )
 
-        load_job.result()  # Waits for job to complete
+        load_job.result()
 
-        print(f"Loaded {year}-{month:02d} into BigQuery")
+        print(f"Loaded {year}-{month:02d} successfully")
 
-        # move to next month
         if current.month == 12:
             current = current.replace(year=current.year + 1, month=1)
         else:
             current = current.replace(month=current.month + 1)
 
-    # Return empty dataframe because Bruin expects something
-    import pandas as pd
+    # Bruin expects a dataframe return
     return pd.DataFrame()
