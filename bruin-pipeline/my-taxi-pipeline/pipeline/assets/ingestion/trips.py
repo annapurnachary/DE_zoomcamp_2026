@@ -53,7 +53,7 @@ print("GCP Credentials default:", config.get('environments', {}).get('default', 
 print("GCP Credentials connections:", config.get('environments', {}).get('default', {}).get('connections', {}))
 print("GCP Credentials google_cloud_platform:", config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {}))
 
-gcp_credentials_file = config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {}).get('service_account_file')
+gcp_credentials_file = config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {})[0].get('service_account_file')
 
 # Create credentials object (assuming the credentials are in a service account JSON format)
 # You might need to convert the dictionary to a proper credentials object
