@@ -36,3 +36,4 @@ urllib3==2.6.3
     # via
     #   -r my-taxi-pipeline/pipeline/assets/ingestion/requirements.txt
     #   requests
+google-cloud-bigquery
