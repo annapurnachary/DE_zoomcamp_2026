@@ -37,3 +37,7 @@ urllib3==2.6.3
     #   -r my-taxi-pipeline/pipeline/assets/ingestion/requirements.txt
     #   requests
 google-cloud-bigquery
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+pyyaml

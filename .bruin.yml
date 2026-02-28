@@ -1,0 +1,17 @@
+default_environment: default
+environments:
+    default:
+        connections:
+            google_cloud_platform:
+                - name: gcp-default
+                  project_id: module-5-bruin
+                  service_account_file: C:/Anu_Study/zoom_camp/Bruin/Big_query/module-5-bruin-5aa7acfc17a0.json
+                  
+            #duckdb:
+                #- name: duckdb-default
+                #  path: C:\cygwin64\home\annap\DE_zoomcamp_2026_Docker\duckdb.db
+            chess:
+                - name: chess-default
+                  players:
+                    - MagnusCarlsen
+                    - Hikaru
