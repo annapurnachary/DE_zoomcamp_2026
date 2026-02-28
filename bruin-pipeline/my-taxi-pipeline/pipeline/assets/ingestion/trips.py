@@ -27,51 +27,55 @@ columns:
 
 import os
 import json
-import pandas as pd
 from datetime import datetime
+from google.cloud import bigquery
 
+# 🔹 CHANGE THESE
+PROJECT_ID = "module-5-bruin"
+DATASET = "ingestion"
+TABLE = "trips"
 
-# 🔹 CHANGE THIS TO YOUR BUCKET NAME
-GCS_BUCKET = "module-4-dbt/yellow-taxi/alldata"
+GCS_BUCKET = "module-4-dbt"
+GCS_PREFIX = "yellow-taxi/alldata/yellow"
 
 
 def materialize():
     start_date = os.environ["BRUIN_START_DATE"]
     end_date = os.environ["BRUIN_END_DATE"]
-    taxi_types = json.loads(os.environ.get("BRUIN_VARS", "{}")).get(
-        "taxi_types", ["yellow"]
-    )
 
     start = datetime.strptime(start_date, "%Y-%m-%d")
     end = datetime.strptime(end_date, "%Y-%m-%d")
 
-    dfs = []
+    client = bigquery.Client(project=PROJECT_ID)
+
     current = start
 
     while current <= end:
         year = current.year
         month = current.month
 
-        for taxi_type in taxi_types:
+        source_uri = (
+            f"gs://{GCS_BUCKET}/{GCS_PREFIX}/"
+            f"yellow_tripdata_{year}-{month:02d}.parquet"
+        )
 
-            gcs_path = (
-                f"gs://{GCS_BUCKET}/{taxi_type}/"
-                f"{taxi_type}_tripdata_{year}-{month:02d}.parquet"
-            )
+        print(f"Starting BigQuery load from: {source_uri}")
 
-            try:
-                print(f"Loading from GCS: {gcs_path}")
+        job_config = bigquery.LoadJobConfig(
+            source_format=bigquery.SourceFormat.PARQUET,
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+            autodetect=True,
+        )
 
-                df = pd.read_parquet(gcs_path, engine="pyarrow")
+        load_job = client.load_table_from_uri(
+            source_uri,
+            f"{PROJECT_ID}.{DATASET}.{TABLE}",
+            job_config=job_config,
+        )
 
-                df["taxi_type"] = taxi_type
-                dfs.append(df)
+        load_job.result()  # Waits for job to complete
 
-                print(f"Loaded {taxi_type} {year}-{month:02d}")
-
-            except Exception as e:
-                print(f"WARNING: Could not load {gcs_path} — {str(e)}")
-                continue
+        print(f"Loaded {year}-{month:02d} into BigQuery")
 
         # move to next month
         if current.month == 12:
@@ -79,65 +83,6 @@ def materialize():
         else:
             current = current.replace(month=current.month + 1)
 
-    if not dfs:
-        raise RuntimeError("No data could be loaded from GCS.")
-
-    final_dataframe = pd.concat(dfs, ignore_index=True)
-
-    # -----------------------------
-    # Timestamp cleaning
-    # -----------------------------
-    final_dataframe["tpep_pickup_datetime"] = (
-        pd.to_datetime(final_dataframe["tpep_pickup_datetime"], errors="coerce")
-        .dt.tz_localize(None)
-    )
-
-    final_dataframe["tpep_dropoff_datetime"] = (
-        pd.to_datetime(final_dataframe["tpep_dropoff_datetime"], errors="coerce")
-        .dt.tz_localize(None)
-    )
-
-    final_dataframe = final_dataframe.dropna(
-        subset=["tpep_pickup_datetime", "tpep_dropoff_datetime"]
-    )
-
-    # -----------------------------
-    # Explicit BigQuery-safe casting
-    # -----------------------------
-    final_dataframe["PULocationID"] = (
-        pd.to_numeric(final_dataframe["PULocationID"], errors="coerce")
-        .astype("Int64")
-    )
-
-    final_dataframe["DOLocationID"] = (
-        pd.to_numeric(final_dataframe["DOLocationID"], errors="coerce")
-        .astype("Int64")
-    )
-
-    final_dataframe["payment_type"] = (
-        pd.to_numeric(final_dataframe["payment_type"], errors="coerce")
-        .astype("Int64")
-    )
-
-    final_dataframe["fare_amount"] = pd.to_numeric(
-        final_dataframe["fare_amount"], errors="coerce"
-    ).astype("float64")
-
-    final_dataframe["taxi_type"] = final_dataframe["taxi_type"].astype("string")
-
-    # -----------------------------
-    # Select only required columns
-    # -----------------------------
-    final_dataframe = final_dataframe[
-        [
-            "tpep_pickup_datetime",
-            "tpep_dropoff_datetime",
-            "PULocationID",
-            "DOLocationID",
-            "fare_amount",
-            "taxi_type",
-            "payment_type",
-        ]
-    ]
-
-    return final_dataframe
+    # Return empty dataframe because Bruin expects something
+    import pandas as pd
+    return pd.DataFrame()
