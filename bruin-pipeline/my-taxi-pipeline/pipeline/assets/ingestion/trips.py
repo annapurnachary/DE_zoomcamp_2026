@@ -49,6 +49,8 @@ gcp_credentials_file = config.get('connections', {}).get('google_cloud_platform'
 # Create credentials object (assuming the credentials are in a service account JSON format)
 # You might need to convert the dictionary to a proper credentials object
 #credentials = service_account.Credentials.from_service_account_info(gcp_credentials_info)
+print(type(gcp_credentials_file))
+print(gcp_credentials_file)
 
 credentials = service_account.Credentials.from_service_account_file(gcp_credentials_file)
 #project_id = credentials.project_id
