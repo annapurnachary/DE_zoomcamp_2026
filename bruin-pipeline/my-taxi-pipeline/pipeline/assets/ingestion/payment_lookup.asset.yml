@@ -16,7 +16,8 @@ type: bq.seed
 # Path to the CSV file (relative to this .asset.yml file).
 # Can also be a URL: https://example.com/data.csv
 parameters:
-  path: payment_type_lookup.csv
+  #path: payment_type_lookup.csv
+  path: bruin-pipeline/my-taxi-pipeline/pipeline/assets/ingestion/payment_type_lookup.csv
   #path: https://raw.githubusercontent.com/getbruin/best-practices/main/data/payment_lookup.csv
 
 # TODO: Define columns and add quality checks.
