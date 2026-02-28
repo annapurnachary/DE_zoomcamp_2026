@@ -1,7 +1,5 @@
 """@bruin
 
-"""@bruin
-
 name: ingestion.trips
 connection: gcp-default
 materialization:
