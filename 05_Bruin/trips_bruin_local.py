@@ -1,8 +1,7 @@
 """@bruin
 
 name: ingestion.trips
-#connection: duckdb-default
-connection: gcp-default
+connection: duckdb-default
 
 materialization:
   type: table
@@ -37,9 +36,9 @@ import sys
 
 subprocess.run([sys.executable, "-m", "pip", "install", "python-dateutil"])
 
-#pyarrow.util.download_tzdata_on_windows()
-if sys.platform.startswith("win"):
-    pyarrow.util.download_tzdata_on_windows()
+pyarrow.util.download_tzdata_on_windows()
+
+
 def materialize():
     start_date = os.environ["BRUIN_START_DATE"]
     end_date = os.environ["BRUIN_END_DATE"]

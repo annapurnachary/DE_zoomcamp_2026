@@ -1,7 +1,7 @@
 """@bruin
 
 name: ingestion.trips
-connection: gcp-default   
+connection: gcp-default
 materialization:
   type: table
   strategy: append
@@ -29,7 +29,10 @@ import os
 import json
 import pandas as pd
 from datetime import datetime
-from urllib.error import HTTPError
+
+
+# 🔹 CHANGE THIS TO YOUR BUCKET NAME
+GCS_BUCKET = "module-4-dbt/yellow-taxi/alldata"
 
 
 def materialize():
@@ -50,25 +53,24 @@ def materialize():
         month = current.month
 
         for taxi_type in taxi_types:
-            url = (
-                f"https://d37ci6vzurychx.cloudfront.net/trip-data/"
+
+            gcs_path = (
+                f"gs://{GCS_BUCKET}/{taxi_type}/"
                 f"{taxi_type}_tripdata_{year}-{month:02d}.parquet"
             )
 
             try:
-                print(f"Attempting to load: {url}")
-                df = pd.read_parquet(url, engine="pyarrow")
+                print(f"Loading from GCS: {gcs_path}")
+
+                df = pd.read_parquet(gcs_path, engine="pyarrow")
 
                 df["taxi_type"] = taxi_type
                 dfs.append(df)
 
-                print(f"Loaded {taxi_type} data for {year}-{month:02d}")
+                print(f"Loaded {taxi_type} {year}-{month:02d}")
 
             except Exception as e:
-                print(
-                    f"WARNING: Could not load {taxi_type} "
-                    f"{year}-{month:02d} — {str(e)}"
-                )
+                print(f"WARNING: Could not load {gcs_path} — {str(e)}")
                 continue
 
         # move to next month
@@ -78,15 +80,12 @@ def materialize():
             current = current.replace(month=current.month + 1)
 
     if not dfs:
-        raise RuntimeError(
-            "No data could be loaded. "
-            "This may be due to network egress restrictions (403 error)."
-        )
+        raise RuntimeError("No data could be loaded from GCS.")
 
     final_dataframe = pd.concat(dfs, ignore_index=True)
 
     # -----------------------------
-    # Timestamp handling (BigQuery safe)
+    # Timestamp cleaning
     # -----------------------------
     final_dataframe["tpep_pickup_datetime"] = (
         pd.to_datetime(final_dataframe["tpep_pickup_datetime"], errors="coerce")
@@ -98,13 +97,12 @@ def materialize():
         .dt.tz_localize(None)
     )
 
-    # Drop rows with invalid timestamps
     final_dataframe = final_dataframe.dropna(
         subset=["tpep_pickup_datetime", "tpep_dropoff_datetime"]
     )
 
     # -----------------------------
-    # Explicit datatype casting (BigQuery safe)
+    # Explicit BigQuery-safe casting
     # -----------------------------
     final_dataframe["PULocationID"] = (
         pd.to_numeric(final_dataframe["PULocationID"], errors="coerce")
@@ -128,18 +126,18 @@ def materialize():
     final_dataframe["taxi_type"] = final_dataframe["taxi_type"].astype("string")
 
     # -----------------------------
-    # Select required columns only
+    # Select only required columns
     # -----------------------------
-    required_columns = [
-        "tpep_pickup_datetime",
-        "tpep_dropoff_datetime",
-        "PULocationID",
-        "DOLocationID",
-        "fare_amount",
-        "taxi_type",
-        "payment_type",
+    final_dataframe = final_dataframe[
+        [
+            "tpep_pickup_datetime",
+            "tpep_dropoff_datetime",
+            "PULocationID",
+            "DOLocationID",
+            "fare_amount",
+            "taxi_type",
+            "payment_type",
+        ]
     ]
-
-    final_dataframe = final_dataframe[required_columns]
 
     return final_dataframe
