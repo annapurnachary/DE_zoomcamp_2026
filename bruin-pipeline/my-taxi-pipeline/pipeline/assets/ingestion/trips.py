@@ -36,7 +36,7 @@ import yaml
 from google.oauth2 import service_account
 
 # Define the path to your bruin.yml file
-yaml_file_path = 'bruin.yml' # Adjust path if needed
+yaml_file_path = '.bruin.yml' # Adjust path if needed
 
 # Load the YAML content
 with open(yaml_file_path, 'r') as f:
