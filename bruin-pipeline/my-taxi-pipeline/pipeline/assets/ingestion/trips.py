@@ -2,27 +2,13 @@
 
 name: ingestion.trips
 connection: gcp-default
-materialization:
-  type: table
-  strategy: append
 image: python:3.11
 
 @bruin"""
 
-import subprocess
-import sys
-
-# Install required package
-#subprocess.run(
-#    [sys.executable, "-m", "pip", "install", "google-cloud-bigquery"],
-#    check=True
-#)
-
 from google.cloud import bigquery
 import os
-from datetime import datetime
-import pandas as pd
-
+import json
 
 # 🔹 UPDATE THESE
 PROJECT_ID = "module-5-bruin"
@@ -32,43 +18,13 @@ TABLE = "trips"
 GCS_BUCKET = "module-4-dbt"
 GCS_PREFIX = "yellow-taxi/alldata/yellow"
 
-import yaml
 from google.oauth2 import service_account
 
-# Define the path to your bruin.yml file
-yaml_file_path = '.bruin.yml' # Adjust path if needed
-
-# Load the YAML content
-with open(yaml_file_path, 'r') as f:
-    config = yaml.safe_load(f)
-
-# Extract the GCP connection details from the config (adjust keys based on your YAML structure)
-# This is an example, you need to match the exact keys used in your bruin.yml
-#gcp_credentials_file = config.get('connections', {}).get('google_cloud_platform', {}).get('service_account_file', {})
-#gcp_credentials_file = config.get('connections', {}).get('google_cloud_platform', {}).get('service_account_file')
-#gcp_credentials_file = config.get('connections').get('google_cloud_platform').get('service_account_file')
-
-print("GCP Credentials environment:", config.get('environments', {}))
-print("GCP Credentials default:", config.get('environments', {}).get('default', {}))
-print("GCP Credentials connections:", config.get('environments', {}).get('default', {}).get('connections', {}))
-print("GCP Credentials google_cloud_platform:", config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {}))
-
-gcp_credentials_file = config.get('environments', {}).get('default', {}).get('connections', {}).get('google_cloud_platform', {})[0].get('service_account_file')
-
-# Create credentials object (assuming the credentials are in a service account JSON format)
-# You might need to convert the dictionary to a proper credentials object
-#credentials = service_account.Credentials.from_service_account_info(gcp_credentials_info)
-print(type(gcp_credentials_file))
-print(gcp_credentials_file)
-
-credentials = service_account.Credentials.from_service_account_file(gcp_credentials_file)
-#project_id = credentials.project_id
-#return bigquery.Client(credentials=credentials, project=project_id)
-
-# Use the credentials with a GCP client library (e.g., BigQuery)
-#client = bigquery.Client(credentials=credentials, project=credentials.project_id)
-client = bigquery.Client(credentials=credentials, project=PROJECT_ID)
-
+raw_creds = os.getenv("gcp-default")
+creds = json.loads(raw_creds)
+creds_json = json.loads(creds["service_account_json"])
+bigquery_client = bigquery.Client(credentials=service_account.Credentials.from_service_account_info(creds_json), project=creds["project_id"])
+print(bigquery_client)
 
 def materialize():
     start_date = os.environ["BRUIN_START_DATE"]
