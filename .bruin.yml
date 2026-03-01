@@ -5,7 +5,8 @@ environments:
             google_cloud_platform:
                 - name: gcp-default
                   project_id: module-5-bruin
-                  service_account_file: C:/Anu_Study/zoom_camp/Bruin/Big_query/module-5-bruin-5aa7acfc17a0.json
+                  #service_account_file: C:/Anu_Study/zoom_camp/Bruin/Big_query/module-5-bruin-5aa7acfc17a0.json
+                  service_account_file: gs://module-4-dbt/config/module-5-bruin-5aa7acfc17a0.json
                   
             #duckdb:
                 #- name: duckdb-default
