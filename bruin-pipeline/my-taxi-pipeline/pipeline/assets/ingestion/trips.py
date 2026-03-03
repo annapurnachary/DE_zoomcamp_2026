@@ -7,33 +7,30 @@ image: python:3.11
 @bruin"""
 
 from google.cloud import bigquery
+from datetime import datetime
 import os
-import json
 
-# 🔹 UPDATE THESE
+
+# ---- CONFIG ----
 PROJECT_ID = "module-5-bruin"
 DATASET = "ingestion"
 TABLE = "trips"
 
 GCS_BUCKET = "module-4-dbt"
 GCS_PREFIX = "yellow-taxi/alldata/yellow"
+# ----------------
 
-from google.oauth2 import service_account
-
-raw_creds = os.getenv("gcp-default")
-creds = json.loads(raw_creds)
-creds_json = json.loads(creds["service_account_json"])
-bigquery_client = bigquery.Client(credentials=service_account.Credentials.from_service_account_info(creds_json), project=creds["project_id"])
-print(bigquery_client)
 
 def materialize():
+    # Bruin provides these automatically
     start_date = os.environ["BRUIN_START_DATE"]
     end_date = os.environ["BRUIN_END_DATE"]
 
     start = datetime.strptime(start_date, "%Y-%m-%d")
     end = datetime.strptime(end_date, "%Y-%m-%d")
 
-    #client = bigquery.Client(project=PROJECT_ID)
+    # Bruin already injects credentials
+    client = bigquery.Client(project=PROJECT_ID)
 
     current = start
 
@@ -46,7 +43,7 @@ def materialize():
             f"yellow_tripdata_{year}-{month:02d}.parquet"
         )
 
-        print(f"Starting BigQuery load from: {source_uri}")
+        print(f"Loading from GCS → {source_uri}")
 
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.PARQUET,
@@ -59,14 +56,18 @@ def materialize():
             job_config=job_config,
         )
 
-        load_job.result()
+        load_job.result()  # Wait for job
 
         print(f"Loaded {year}-{month:02d} successfully")
 
+        # next month
         if current.month == 12:
             current = current.replace(year=current.year + 1, month=1)
         else:
             current = current.replace(month=current.month + 1)
 
-    # Bruin expects a dataframe return
+    print("All months loaded successfully")
+
+    # Bruin requires a dataframe return
+    import pandas as pd
     return pd.DataFrame()
